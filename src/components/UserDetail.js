@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Button, Avatar, message, Input, notification } from "antd";
+import { Button, Avatar, message, notification, Input, Row, Col, Card, Spin } from 'antd';
+import { PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import axios from 'axios'; // 导入axios
 import HappyAnimation from './HappyAnimation';  // 导入动画组件
 import SadAnimation from './SadAnimation';     // 导入Sad动画组件
@@ -13,7 +14,7 @@ import SadAnimation from './SadAnimation';     // 导入Sad动画组件
 
 const UserDetail = () => {
   const [userData, setUserData] = useState(null); // 用来存储用户数据
-  const [showAnimation, setShowAnimation] = useState(false); // 控制动画显示
+  const [showHappyAnimation, setShowHappyAnimation] = useState(false); // 控制Happy动画显示
   const [showSadAnimation, setShowSadAnimation] = useState(false);     // 控制Sad动画显示
   const [inputValue, setInputValue] = useState('1'); // 输入框的值
 
@@ -52,7 +53,7 @@ const UserDetail = () => {
         // message.success("恭喜你，积分增加！");
 
         // 播放恭喜的动画
-        setShowAnimation(true); // 显示动画
+        setShowHappyAnimation(true);  // 显示Happy动画
 
 
       // 调用API，发送积分信息
@@ -84,7 +85,7 @@ const UserDetail = () => {
     }
   };
 
-  const handleReduceScore = () => {
+  const handleRemoveScore = () => {
     const number = parseInt(inputValue, 10);
     if (!isNaN(number)) {
         const newScore = userData.score - number;
@@ -98,9 +99,9 @@ const UserDetail = () => {
     }
   };
 
-  const handleAnimationComplete = () => {
+  const handleHappyAnimationComplete = () => {
     // 动画播放完成后隐藏
-    setShowAnimation(false);
+    setShowHappyAnimation(false);
   };
 
   const handleSadAnimationComplete = () => {
@@ -116,37 +117,82 @@ const UserDetail = () => {
     }
   };
 
-  if (!userData) return null;  // 如果没有用户数据，则不显示
+  // 如果没有获取到用户数据，显示加载状态
+  if (!userData) {
+    return <div style={{ textAlign: 'center', marginTop: '50px' }}><Spin size="large" /></div>;
+  }
 
   return (
-    <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-      <Avatar size={100} src={userData.avatar} />
-      <h2>{userData.name}</h2>
-      <p>积分: {userData.score}</p>
+    <div style={{ background: '#f0f2f5', padding: '50px 20px', minHeight: '100vh' }}>
+      <Row justify="center" gutter={24}>
+        <Col xs={24} sm={18} md={12} lg={8}>
+          <Card
+            hoverable
+            style={{
+              background: '#ffffff',
+              borderRadius: '15px',
+              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+              textAlign: 'center',
+            }}
+          >
+            <Avatar size={120} src={userData.avatar} style={{ marginBottom: '20px' }} />
+            <h2>{userData.name}</h2>
+            <p style={{ fontSize: '18px', color: '#1890ff' }}>积分: {userData.score}</p>
 
-      {/* 显示Happy动画 */}
-      {showAnimation && <HappyAnimation onComplete={handleAnimationComplete} />}
-      {/* 显示Sad动画 */}
-      {showSadAnimation && <SadAnimation onComplete={handleSadAnimationComplete} />}
+            {/* 显示Happy动画 */}
+            {showHappyAnimation && <HappyAnimation onComplete={handleHappyAnimationComplete} />}
 
-      <div style={{ textAlign: 'center', marginTop: '20px' }}>
-        {/* 输入框 */}
-        <Input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          placeholder="请输入数字"
-          style={{ width: 200, marginBottom: '20px' }}
-        />
-        <div>
-          <Button type="primary" onClick={handleAddScore} style={{ marginRight: '10px' }}>
-            + 积分
-          </Button>
-          <Button type="default" onClick={handleReduceScore}>
-            - 积分
-          </Button>
-        </div>
-      </div>
+            {/* 显示Sad动画 */}
+            {showSadAnimation && <SadAnimation onComplete={handleSadAnimationComplete} />}
+
+            <div style={{ marginTop: '20px' }}>
+              <Input
+                type="text"
+                value={inputValue}
+                onChange={handleInputChange}
+                placeholder="请输入数字"
+                style={{
+                  width: '100px',
+                  marginBottom: '20px',
+                  fontSize: '16px',
+                  textAlign: 'center',
+                  borderRadius: '5px',
+                  borderColor: '#1890ff',
+                }}
+              />
+              <div>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={handleAddScore}
+                  style={{
+                    marginRight: '10px',
+                    width: '120px',
+                    borderRadius: '10px',
+                    fontSize: '16px',
+                    padding: '10px',
+                  }}
+                >
+                  加积分
+                </Button>
+                <Button
+                  type="default"
+                  icon={<MinusOutlined />}
+                  onClick={handleRemoveScore}
+                  style={{
+                    width: '120px',
+                    borderRadius: '10px',
+                    fontSize: '16px',
+                    padding: '10px',
+                  }}
+                >
+                  减积分
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </Col>
+      </Row>
     </div>
   );
 };
