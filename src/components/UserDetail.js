@@ -17,6 +17,8 @@ const UserDetail = () => {
   const [showHappyAnimation, setShowHappyAnimation] = useState(false); // 控制Happy动画显示
   const [showSadAnimation, setShowSadAnimation] = useState(false);     // 控制Sad动画显示
   const [inputValue, setInputValue] = useState('1'); // 输入框的值
+  const [isActionInProgress, setIsActionInProgress] = useState(false); // 控制按钮和输入框的显示与隐藏
+
 
   // 获取用户数据
   useEffect(() => {
@@ -54,6 +56,7 @@ const UserDetail = () => {
 
         // 播放恭喜的动画
         setShowHappyAnimation(true);  // 显示Happy动画
+        setIsActionInProgress(true);  // 隐藏按钮和输入框
 
 
       // 调用API，发送积分信息
@@ -85,7 +88,7 @@ const UserDetail = () => {
     }
   };
 
-  const handleRemoveScore = () => {
+  const handleRemoveScore = async () => {
     const number = parseInt(inputValue, 10);
     if (!isNaN(number)) {
         const newScore = userData.score - number;
@@ -94,6 +97,31 @@ const UserDetail = () => {
 
         // 播放伤心的动画
         setShowSadAnimation(true);    // 显示Sad动画
+        setIsActionInProgress(true);  // 隐藏按钮和输入框
+
+      // 调用API，发送积分信息
+      try {
+        const response = await axios.post('http://a.com/score', {
+          userid: 1,   // 假设userid为1
+          score: number, // 传递输入的积分
+        });
+
+        // 处理API成功响应
+        notification.success({
+          message: '积分更新成功',
+          description: `扣分 +${number}, API响应: ${response.data.message}`,
+          duration: 3,
+        });
+      } catch (error) {
+        // 处理API错误响应
+        notification.error({
+          message: 'API请求失败',
+          description: '无法更新积分，请稍后再试。',
+          duration: 3,
+        });
+      }
+
+
     } else {
         message.success("积分无效，请输入一个数字");
     }
@@ -102,10 +130,12 @@ const UserDetail = () => {
   const handleHappyAnimationComplete = () => {
     // 动画播放完成后隐藏
     setShowHappyAnimation(false);
+    setIsActionInProgress(false);  // 显示按钮和输入框
   };
 
   const handleSadAnimationComplete = () => {
     setShowSadAnimation(false);    // 隐藏Sad动画
+    setIsActionInProgress(false);  // 显示按钮和输入框
   };
 
   // 限制输入框只能输入数字
@@ -145,6 +175,8 @@ const UserDetail = () => {
             {/* 显示Sad动画 */}
             {showSadAnimation && <SadAnimation onComplete={handleSadAnimationComplete} />}
 
+              {/* 如果操作正在进行，则不显示输入框和按钮 */}
+              {!isActionInProgress && (
             <div style={{ marginTop: '20px' }}>
               <Input
                 type="text"
@@ -190,6 +222,7 @@ const UserDetail = () => {
                 </Button>
               </div>
             </div>
+            )}
           </Card>
         </Col>
       </Row>
