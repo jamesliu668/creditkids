@@ -1,0 +1,18 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
+  }
+  
+  h2 {
+    font-size: 24px;
+    margin-top: 10px;
+  }
+  
+  button {
+    margin-top: 20px;
+  }
+  
+  .ant-avatar {
+    margin-bottom: 10px;
+  }
+  
